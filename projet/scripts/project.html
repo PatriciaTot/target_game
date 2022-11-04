@@ -1,0 +1,187 @@
+// global variable for the project
+
+// default initial width and heigth for the target
+var TARGET_WIDTH = 40;
+var TARGET_HEIGHT = 40;
+
+// chrono management
+// value of time in tenth of seconds
+var time = 0;
+// timer variable 
+var chronoTimer = null;
+
+
+// Totoum Patricia
+
+// YOUR CODE BELOW
+		
+//										GESTION D'EVENEMENTS								//
+
+
+var setupListenners = function(){
+	var create = document.getElementById('create');
+	create.addEventListener("click",ajout_Cible);
+	var start = document.getElementById("start");
+	start.addEventListener("click",demarre_chrono);
+
+}
+window.addEventListener("load",setupListenners);
+
+
+//		ajout_cible() ajoute une cible dans l'élément d'id terrain de facon aléatoire 		//
+//		Et lui rajoute une classe "target" et "on" 											//
+
+
+var ajout_Cible = function(){
+	var cible = document.createElement("div");
+	var terrain = document.getElementById('terrain');
+	cible.className ="target";
+	cible.classList.add("on");
+	var top = Math.floor(Math.random()*370);
+	var left = Math.floor(Math.random()*370);
+	cible.style.top = top + "px";
+	cible.style.left = left + "px";
+	terrain.appendChild(cible);
+	cible.addEventListener("click",remove_cible);
+
+}
+
+
+//		remove() fonction supprimant une cible lors d'un click sur cet élément et qui 		//
+//		est passée en paramètre à la fonction <window.setTimeout()>
+//		param y: l'element qu'on veut supprimer 											//
+
+
+ remove = function(y){
+	var terrain = document.getElementById('terrain');
+	var oldChild = terrain.removeChild(y);
+}
+
+
+
+//		remove_cible() supprime la cible et lui ajoute une classe hit avant la suppression.  //
+//		Mais egalement la supprime de l'arbre DOM en faisant aussi apparaitre l'effet du     //
+//		clic sur cet élément et sa disparition après 1 seconde.								//
+
+
+var remove_cible = function(elt){
+	this.classList.add("hit");
+	var terrain = document.getElementById('terrain');
+	var x = this;
+	timeoutID = window.setTimeout(function(){
+		remove(x);
+	}, 1000);
+	var res = cibles_restantes();// res contient le nombre de cibles restantes
+	if (res == 0){
+		clearInterval(chronoTimer);//arrete le chrono quand l'utilisateur supprime toutes les cibles
+		var seconds = document.getElementById("seconds");
+		var minutes = document.getElementById("minutes");
+		var tenth = document.getElementById("tenth");
+		window.alert("Vous avez terminé en " +parseInt(minutes.textContent)+ '"' +parseInt(seconds.textContent)+'"'+parseInt(tenth.textContent));
+	}
+}
+
+
+//		demarre_chrono() une fonction qui assure le demarrage du chronomètre 				//
+//		un evènement <click> sur l'élément d'id <start> lui est ajouté pour lancer 			//
+//		le jeu.
+//		Chaque clique sur le bouton <Demarré> remet à zero le chronomètre et ceci par  		//
+// 		un appel à la fonction <mise_a_zero()> .Et egalement elle efface les anciennes cibles 
+//		en les supprimant de l'arbre DOM parl'appel à la fonction <nettoie_terrain()>			//
+
+
+var demarre_chrono = function(){
+	nettoie_terrain();// nettoie les anciennes cibles existantes  
+	mise_a_zero();// à chaque click sur le boutton demarrer la fonction remet à zéro lme chrono
+	chronoTimer = window.setInterval(temps, 100);
+	nb_cibles();
+	
+}
+
+
+//		temps() une fonction qui assure la gestion des secondes_minutes_tiers par la 		//
+// 		modification des contenus des id tenth seconds minutes en fonction du temps ecoulé  //
+//		variable <secondes> contient le nombre de secondes 									//
+
+
+var temps = function(){
+	time+=100;
+	var tenth = document.getElementById("tenth");
+	tenth.textContent = ((parseInt(tenth.textContent))+1)% 10;
+	var seconds = document.getElementById("seconds");
+	var minutes = document.getElementById("minutes");
+	var secondes = time%1000;
+	if (secondes == 0){
+		seconds.textContent = ((parseInt(seconds.textContent))+1);
+		if (seconds.textContent == 60){
+			minutes.textContent = ((parseInt(minutes.textContent))+1);
+			seconds.textContent = 0;
+		}
+	}
+
+}
+
+
+//		nb_cibles() une fonction qui met à jour la zone affichant le nombre de cibles qui     //
+// 		reste à détruire en fonction des cibles presentent sur le terrain. C'est-à-dire dès   //
+//		que l'on clique sur <demarrer> que le nombre de cibles affichées soit le meme que 	  //
+//		celui dans la zone affichant le nombre de cibles restantes.  						 //
+
+
+var nb_cibles = function(){
+	var nbtargets = document.getElementById("nbtargets");
+	var nb_cible = nbtargets.value;
+	i = 0;
+	while(i<nb_cible){
+		ajout_Cible();
+		i+=1;
+	}
+	remaining.textContent = i;
+
+}
+
+
+
+//		cibles_restantes() une fonction qui met à jour la zone affichant le nombre de cibles 	 //
+// 		restantes à détruire en décrémentant ce nombre à chaque suppression d'une cible et 
+//		en adaptant la zone de cibles restantes en fonction du nombre de cibles sur le terrain   //
+
+
+var cibles_restantes = function(){
+	var remaining = document.getElementById("remaining");
+	if (remaining.textContent != 0){
+		remaining.textContent = parseInt(remaining.textContent)-1;
+	}
+	return remaining.textContent;
+	
+}
+
+
+//		mise_a_zero() une fonction qui remet à zero le chronometre à chaque clique sur le 		//
+//		boutton <Demarrer> (elle est utilisée dans la fonction <demarre_chrono()) 				//
+
+
+var mise_a_zero = function(){
+	var seconds = document.getElementById("seconds");
+	var minutes = document.getElementById("minutes");
+	var tenth = document.getElementById("tenth");
+	minutes.textContent = 0;
+	seconds.textContent = 0;
+	tenth.textContent = 0;
+}
+
+//		nettoie_terrain() une fonction qui remet la zone terrain à vide à chaque clique sur le 	//
+//		boutton <Demarrer> (elle est utilisée dans la fonction <demarre_chrono()) 				//
+ 
+var nettoie_terrain = function(){
+	var terrain = document.getElementById('terrain');
+	var lesBoulews = document.getElementsByClassName("target");
+	while (lesBoulews.length > 0){
+		terrain.removeChild(lesBoulews[0]);
+	}
+}
+
+
+
+	
+
