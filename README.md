@@ -1,7 +1,3 @@
-# Mini javascript project
-
-This document is designed to learn more about the progress of the project, the evolution of the work and the codes and functions used for the project.
-
 ## Study of the HTML code of the document
 
 In the HTML code, there are some elements such as "button", "span" and "div". Some of them are identified by their "id" to better differentiate them and target them with the javascript code that will be created.
